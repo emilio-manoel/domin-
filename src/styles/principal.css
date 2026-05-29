@@ -73,25 +73,25 @@ body {
   place-items: center;
 }
 
-.player1-spam,
-.player2-spam,
-.player3-spam,
-.player4-spam {
+.player1-span,
+.player2-span,
+.player3-span,
+.player4-span {
   aspect-ratio: 1 / 1;
   display: flex;
   width: 10px;
   background-color:brown;
 }
 
-.player1-spam,
-.player3-spam {
+.player1-span,
+.player3-span {
   width: 50px;
    height: 150px;
    border-radius: 10px;
 }
 
-.player2-spam,
-.player4-spam {
+.player2-span,
+.player4-span {
   width: 140px;
    height: 50px;
    border-radius: 10px;
