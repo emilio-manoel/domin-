@@ -80,19 +80,29 @@ body {
   aspect-ratio: 1 / 1;
   display: flex;
   width: 10px;
-  background-color:brown;
+  background-color: gray;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  place-items: center;
 }
 
 .player1-span,
 .player3-span {
   width: 65px;
-   height: 150px;
-   border-radius: 10px;
+  height: 150px;
+  border-radius: 10px;
 }
 
 .player2-span,
 .player4-span {
   width: 150px;
-   height: 65px;
-   border-radius: 10px;
+  height: 65px;
+  border-radius: 10px;
+}
+
+.sideA,
+.sideB {
+  width: 85%;
+  height: 85%;
+  align-items: center;
 }

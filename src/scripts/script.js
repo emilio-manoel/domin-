@@ -49,8 +49,17 @@ function distributePieces() {
 }
 
 function showsPiecesPlayer1() {
-    
+  for (let i = 1; i <= player1Pieces.length; i++) {
+    player1view = document.querySelector(`#number${i}.player1-span`);
 
+    let imgCreated1 = player1view.appendChild(document.createElement("img"));
+    imgCreated1.className = "sideA";
+    imgCreated1.src = `../src/assets/part-${player1Pieces[i - 1].sideA}.jpg`;
+    
+    let imgCreated2 = player1view.appendChild(document.createElement("img"));
+    imgCreated2.className = "sideB";
+    imgCreated2.src = `../src/assets/part-${player1Pieces[i - 1].sideB}.jpg`;
+  }
 }
 
 function execute() {
