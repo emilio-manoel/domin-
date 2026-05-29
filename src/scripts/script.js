@@ -31,9 +31,18 @@ function createParts() {
 
 }
 
+let randomPiecesArray = [];
+function randomPieces() {
+    for(let i = 0; i < 28;i++){
+    randomPiecesArray[i] = (partsPlayer[Math.floor(Math.random() * 28)]);
+    }
+}
 
 
-createParts();
+
 createPartsStyle();
+createParts();
+randomPieces();
 
 console.log(partsPlayer)
+console.log(randomPiecesArray)
