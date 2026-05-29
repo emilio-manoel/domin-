@@ -42,27 +42,16 @@ let player2Pieces = [];
 let player3Pieces = [];
 let player4Pieces = [];
 function distributePieces() {
-  for (let e = 1; e <= 4; e++) {
-    for (let i = 0; i < 7; i++) {
-      switch (e) {
-        case 1:
-          player1Pieces.push(partsPlayer[i]);
-          break;
-        case 2:
-          player2Pieces.push(partsPlayer[i]);
-          break;
-        case 3:
-          player3Pieces.push(partsPlayer[i]);
-          break;
-        case 4:
-          player4Pieces.push(partsPlayer[i]);
-          break;
-      }
-    }
-  }
+  player1Pieces = partsPlayer.slice(0, 7);
+  player2Pieces = partsPlayer.slice(7, 14);
+  player3Pieces = partsPlayer.slice(14, 21);
+  player4Pieces = partsPlayer.slice(21, 28);
 }
 
-function showsPiecesPlayer1() {}
+function showsPiecesPlayer1() {
+    
+
+}
 
 function execute() {
   createPartsStyle();
@@ -71,6 +60,7 @@ function execute() {
   distributePieces();
   showsPiecesPlayer1();
 }
+
 execute();
 
 console.log(partsPlayer);
