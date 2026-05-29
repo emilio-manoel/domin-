@@ -19,30 +19,61 @@ function createPartsStyle() {
 
 let partsPlayer = [];
 function createParts() {
-    for(let i = 0; i <= 6; i++){
-        for(let e = i; e <= 6; e++){
-            partsPlayer.push({
-                sideA: i,
-                sideB: e,
-                type:  (i === e) ? "dupla" : "comum"
-            });
-        }
+  for (let i = 0; i <= 6; i++) {
+    for (let e = i; e <= 6; e++) {
+      partsPlayer.push({
+        sideA: i,
+        sideB: e,
+        type: i === e ? "dupla" : "comum",
+      });
     }
-
+  }
 }
 
 let randomPiecesArray = [];
 function randomPieces() {
-    for(let i = 0; i < 28;i++){
-    randomPiecesArray[i] = (partsPlayer[Math.floor(Math.random() * 28)]);
-    }
+  for (let i = 0; i < 28; i++) {
+    randomPiecesArray[i] = partsPlayer[Math.floor(Math.random() * 28)];
+  }
 }
 
+let player1Pieces = [];
+let player2Pieces = [];
+let player3Pieces = [];
+let player4Pieces = [];
+function distributePieces() {
+  for (let e = 1; e <= 4; e++) {
+    for (let i = 0; i < 7; i++) {
+      switch (e) {
+        case 1:
+          player1Pieces.push(randomPiecesArray[i]);
+          break;
+        case 2:
+          player2Pieces.push(randomPiecesArray[i]);
+          break;
+        case 3:
+          player3Pieces.push(randomPiecesArray[i]);
+          break;
+        case 4:
+            player4Pieces.push(randomPiecesArray[i]);
+          break;
+      }
+    }
+  }
+}
 
+function execute() {
+  createPartsStyle();
+  createParts();
+  randomPieces();
+  distributePieces();
+}
 
-createPartsStyle();
-createParts();
-randomPieces();
+execute();
 
-console.log(partsPlayer)
-console.log(randomPiecesArray)
+console.log(partsPlayer);
+console.log(randomPiecesArray);
+console.log(player1Pieces);
+console.log(player2Pieces);
+console.log(player3Pieces);
+console.log(player4Pieces);
