@@ -30,10 +30,10 @@ function createParts() {
   }
 }
 
-let randomPiecesArray = [];
 function randomPieces() {
-  for (let i = 0; i < 28; i++) {
-    randomPiecesArray[i] = partsPlayer[Math.floor(Math.random() * 28)];
+  for (let i = partsPlayer.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [partsPlayer[i], partsPlayer[j]] = [partsPlayer[j], partsPlayer[i]];
   }
 }
 
@@ -46,33 +46,34 @@ function distributePieces() {
     for (let i = 0; i < 7; i++) {
       switch (e) {
         case 1:
-          player1Pieces.push(randomPiecesArray[i]);
+          player1Pieces.push(partsPlayer[i]);
           break;
         case 2:
-          player2Pieces.push(randomPiecesArray[i]);
+          player2Pieces.push(partsPlayer[i]);
           break;
         case 3:
-          player3Pieces.push(randomPiecesArray[i]);
+          player3Pieces.push(partsPlayer[i]);
           break;
         case 4:
-            player4Pieces.push(randomPiecesArray[i]);
+          player4Pieces.push(partsPlayer[i]);
           break;
       }
     }
   }
 }
 
+function showsPiecesPlayer1() {}
+
 function execute() {
   createPartsStyle();
   createParts();
   randomPieces();
   distributePieces();
+  showsPiecesPlayer1();
 }
-
 execute();
 
 console.log(partsPlayer);
-console.log(randomPiecesArray);
 console.log(player1Pieces);
 console.log(player2Pieces);
 console.log(player3Pieces);
