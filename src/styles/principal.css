@@ -98,6 +98,12 @@ body {
 }
 
 .turn-player{
-  background-color:green;
-  border:green solid 10px;
+  background-color:rgb(15, 172, 15);
+  border:rgb(15, 172, 15) solid 10px;
+}
+
+.start-player1{
+  box-sizing: content-box;
+  border: rgb(37, 26, 188) solid 10px;
+  border-radius: 18px;
 }

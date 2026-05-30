@@ -67,6 +67,7 @@ function Game() {
   let round = 0;
   let player1Ready = false;
   let currentPart = null;
+  let startPlayer1 = null;
 
   function startGame() {
     const position = Number(
@@ -74,7 +75,7 @@ function Game() {
     );
     if (position >= 0 && position <= 6) {
       console.log("player1 começa");
-
+      startPlayer1 = true;
       round = 1;
     } else if (position >= 7 && position <= 13) {
       console.log("Player 2 começa");
@@ -103,12 +104,27 @@ function Game() {
     if (player1Ready) return;
     player1Ready = true;
 
-    DOM.player1.className = "turn-player";
     const spans = document.querySelectorAll(".player1-span");
+
+    if (startPlayer1) {
+      spans.forEach((span) => {
+        const sideA = Number(span.querySelector(".sideA").src.slice(-5, -4));
+        const sideB = Number(span.querySelector(".sideB").src.slice(-5, -4));
+        if (sideA === 1 && sideB === 1) {
+          span.classList.add("start-player1");
+        }
+      });
+    }
+
     spans.forEach((span) => {
       span.addEventListener("click", () => {
         if (round !== 1) return;
+
+        if (startPlayer1 && !span.classList.contains("start-player1")) return;
+
         span.style.visibility = "hidden";
+        span.classList.remove("start-player1");
+
         player1Pieces.forEach((part) => {
           if (
             part.sideA ===
@@ -123,12 +139,11 @@ function Game() {
             console.log(player1Pieces);
 
             DOM.player1.className = "";
-
+            startPlayer1 = false;
             round = 2;
             whoplayed();
           }
         });
-        
       });
     });
   }
@@ -141,9 +156,8 @@ function Game() {
       const span = document.querySelector(`.player${player}-span`).remove();
       whoplayed();
 
-    DOM[`player${player}`].className = "";      
+      DOM[`player${player}`].className = "";
     }, 3000);
-    
   }
 
   function whoplayed() {
@@ -161,7 +175,7 @@ function Game() {
 
     if (round === 1) {
       turnPlayer1();
-
+      DOM.player1.className = "turn-player";
     } else if (round === 2) {
       restPlayersTurn(2);
       round = 3;
@@ -171,7 +185,6 @@ function Game() {
     } else if (round === 4) {
       restPlayersTurn(4);
       round = 1;
-      whoplayed();
     }
   }
 
