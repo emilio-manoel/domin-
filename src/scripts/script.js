@@ -64,45 +64,91 @@ function showsPiecesPlayer1() {
 }
 
 function Game() {
+  let round = 0;
+  let player1Ready = false;
+
   function startGame() {
     const posicao = Number(
       partsPlayer.findIndex((part) => part.sideA === 1 && part.sideB === 1),
     );
     if (posicao >= 0 && posicao <= 6) {
       console.log("Player 1 começa");
+      round = 1;
     } else if (posicao >= 7 && posicao <= 13) {
       console.log("Player 2 começa");
+      round = 2;
     } else if (posicao >= 14 && posicao <= 20) {
       console.log("Player 3 começa");
+      round = 3;
     } else if (posicao >= 21 && posicao <= 27) {
       console.log("Player 4 começa");
+      round = 4;
     }
+    whoplayed();
     console.log(posicao);
   }
 
   function turnPlayer1() {
+    if (player1Ready) return;
+    player1Ready = true;
+
     const spans = document.querySelectorAll(".player1-span");
     spans.forEach((span) => {
       span.addEventListener("click", () => {
+        if (round !== 1) return;
         span.style.visibility = "hidden";
         player1Pieces.forEach((part) => {
           if (
-            part.sideA === Number(span.querySelector(".sideA").src.slice(-5, -4)) &&
-            part.sideB === Number(span.querySelector(".sideB").src.slice(-5, -4))
+            part.sideA ===
+              Number(span.querySelector(".sideA").src.slice(-5, -4)) &&
+            part.sideB ===
+              Number(span.querySelector(".sideB").src.slice(-5, -4))
           ) {
             console.log(`Player 1 jogou a peça ${part.sideA}-${part.sideB}`);
+            player1Pieces = player1Pieces.filter((p) => p !== part);
+            console.log(player1Pieces);
+            round = 2;
+            whoplayed();
           }
-      })});
+        });
+      });
     });
   }
 
-  function restPlayersTurn() {
+  function restPlayersTurn(player) {
+    console.log(`Player ${player} jogou (bot)`);
+    
+  }
 
+  function whoplayed() {
+    const vencedor = [
+      player1Pieces,
+      player2Pieces,
+      player3Pieces,
+      player4Pieces,
+    ].findIndex((p) => p.length === 0);
+
+    if (vencedor !== -1) {
+      window.alert(`Player ${vencedor + 1} venceu!`);
+      return;
+    }
+
+    if (round === 1) {
+      turnPlayer1();
+    } else if (round === 2) {
+      restPlayersTurn(2);
+      round = 3;
+    } else if (round === 3) {
+      restPlayersTurn(3);
+      round = 4;
+    } else if (round === 4) {
+      restPlayersTurn(4);
+      round = 1;
+      whoplayed(); 
+    }
   }
 
   startGame();
-  restPlayersTurn();
-  turnPlayer1();
 }
 
 function execute() {
@@ -114,9 +160,3 @@ function execute() {
 }
 
 execute();
-
-console.log(partsPlayer);
-console.log(player1Pieces);
-console.log(player2Pieces);
-console.log(player3Pieces);
-console.log(player4Pieces);
