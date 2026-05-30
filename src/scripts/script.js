@@ -81,14 +81,28 @@ function Game() {
   }
 
   function turnPlayer1() {
-    for (let i = 1; i <= player1Pieces.length; i++) {
-    
-    }
+    const spans = document.querySelectorAll(".player1-span");
+    spans.forEach((span) => {
+      span.addEventListener("click", () => {
+        span.style.visibility = "hidden";
+        player1Pieces.forEach((part) => {
+          if (
+            part.sideA === Number(span.querySelector(".sideA").src.slice(-5, -4)) &&
+            part.sideB === Number(span.querySelector(".sideB").src.slice(-5, -4))
+          ) {
+            console.log(`Player 1 jogou a peça ${part.sideA}-${part.sideB}`);
+          }
+      })});
+    });
   }
 
-  function restPlayersTurn() {}
+  function restPlayersTurn() {
+
+  }
 
   startGame();
+  restPlayersTurn();
+  turnPlayer1();
 }
 
 function execute() {
@@ -100,8 +114,6 @@ function execute() {
 }
 
 execute();
-
-
 
 console.log(partsPlayer);
 console.log(player1Pieces);
