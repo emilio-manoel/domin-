@@ -28,6 +28,7 @@ function createParts() {
       });
     }
   }
+  randomPieces();
 }
 
 function randomPieces() {
@@ -55,22 +56,52 @@ function showsPiecesPlayer1() {
     let imgCreated1 = player1view.appendChild(document.createElement("img"));
     imgCreated1.className = "sideA";
     imgCreated1.src = `../src/assets/part-${player1Pieces[i - 1].sideA}.jpg`;
-    
+
     let imgCreated2 = player1view.appendChild(document.createElement("img"));
     imgCreated2.className = "sideB";
     imgCreated2.src = `../src/assets/part-${player1Pieces[i - 1].sideB}.jpg`;
   }
 }
 
+function Game() {
+  function startGame() {
+    const posicao = Number(
+      partsPlayer.findIndex((part) => part.sideA === 1 && part.sideB === 1),
+    );
+    if (posicao >= 0 && posicao <= 6) {
+      console.log("Player 1 começa");
+    } else if (posicao >= 7 && posicao <= 13) {
+      console.log("Player 2 começa");
+    } else if (posicao >= 14 && posicao <= 20) {
+      console.log("Player 3 começa");
+    } else if (posicao >= 21 && posicao <= 27) {
+      console.log("Player 4 começa");
+    }
+    console.log(posicao);
+  }
+
+  function turnPlayer1() {
+    for (let i = 1; i <= player1Pieces.length; i++) {
+    
+    }
+  }
+
+  function restPlayersTurn() {}
+
+  startGame();
+}
+
 function execute() {
   createPartsStyle();
   createParts();
-  randomPieces();
   distributePieces();
   showsPiecesPlayer1();
+  Game();
 }
 
 execute();
+
+
 
 console.log(partsPlayer);
 console.log(player1Pieces);
