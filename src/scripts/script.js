@@ -66,32 +66,44 @@ function showsPiecesPlayer1() {
 function Game() {
   let round = 0;
   let player1Ready = false;
+  let currentPart = null;
 
   function startGame() {
-    const posicao = Number(
+    const position = Number(
       partsPlayer.findIndex((part) => part.sideA === 1 && part.sideB === 1),
     );
-    if (posicao >= 0 && posicao <= 6) {
-      console.log("Player 1 começa");
+    if (position >= 0 && position <= 6) {
+      console.log("player1 começa");
+
       round = 1;
-    } else if (posicao >= 7 && posicao <= 13) {
+    } else if (position >= 7 && position <= 13) {
       console.log("Player 2 começa");
+      player2Pieces = player2Pieces.filter(
+        (part) => !(part.sideA === 1 && part.sideB === 1),
+      );
       round = 2;
-    } else if (posicao >= 14 && posicao <= 20) {
+    } else if (position >= 14 && position <= 20) {
       console.log("Player 3 começa");
+      player3Pieces = player3Pieces.filter(
+        (part) => !(part.sideA === 1 && part.sideB === 1),
+      );
       round = 3;
-    } else if (posicao >= 21 && posicao <= 27) {
+    } else if (position >= 21 && position <= 27) {
       console.log("Player 4 começa");
+      player4Pieces = player4Pieces.filter(
+        (part) => !(part.sideA === 1 && part.sideB === 1),
+      );
       round = 4;
     }
     whoplayed();
-    console.log(posicao);
+    console.log(position);
   }
 
   function turnPlayer1() {
     if (player1Ready) return;
     player1Ready = true;
 
+    DOM.player1.className = "turn-player";
     const spans = document.querySelectorAll(".player1-span");
     spans.forEach((span) => {
       span.addEventListener("click", () => {
@@ -104,19 +116,33 @@ function Game() {
             part.sideB ===
               Number(span.querySelector(".sideB").src.slice(-5, -4))
           ) {
-            console.log(`Player 1 jogou a peça ${part.sideA}-${part.sideB}`);
+            currentPart = player1Pieces.find((p) => p === part);
+            console.log(currentPart);
+
             player1Pieces = player1Pieces.filter((p) => p !== part);
             console.log(player1Pieces);
+
+            DOM.player1.className = "";
+
             round = 2;
             whoplayed();
           }
         });
+        
       });
     });
   }
 
   function restPlayersTurn(player) {
-    console.log(`Player ${player} jogou (bot)`);
+    DOM[`player${player}`].className = "turn-player";
+
+    setTimeout(() => {
+      console.log(`Player ${player} jogou (bot)`);
+      const span = document.querySelector(`.player${player}-span`).remove();
+      whoplayed();
+
+    DOM[`player${player}`].className = "";      
+    }, 3000);
     
   }
 
@@ -135,6 +161,7 @@ function Game() {
 
     if (round === 1) {
       turnPlayer1();
+
     } else if (round === 2) {
       restPlayersTurn(2);
       round = 3;
@@ -144,7 +171,7 @@ function Game() {
     } else if (round === 4) {
       restPlayersTurn(4);
       round = 1;
-      whoplayed(); 
+      whoplayed();
     }
   }
 
@@ -160,3 +187,9 @@ function execute() {
 }
 
 execute();
+
+console.log(player1Pieces);
+console.log(player2Pieces);
+console.log(player3Pieces);
+console.log(player4Pieces);
+console.log(partsPlayer);

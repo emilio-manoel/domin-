@@ -96,3 +96,8 @@ body {
   height: 85%;
   border-radius: 8px;
 }
+
+.turn-player{
+  background-color:green;
+  border:green solid 10px;
+}
