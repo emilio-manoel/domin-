@@ -31,7 +31,6 @@ function createParts() {
     }
   }
   randomPieces();
-  console.log(partsPlayer);
 }
 
 function randomPieces() {
@@ -134,6 +133,7 @@ function Game() {
   let currentEnds = null;
   let currentPart = null;
   let startPlayer1 = null;
+  let consecutivePasses = 0;
 
   function partMatchesCurrent(part) {
     if (!currentEnds) return false;
@@ -203,6 +203,7 @@ function Game() {
   }
 
   function playPlayer1Piece(piece, side, span) {
+    consecutivePasses = 0;
     DOM.player1.classList.remove("turn-player");
     currentPart = piece;
     player1Pieces = player1Pieces.filter((p) => p !== piece);
@@ -341,17 +342,18 @@ function Game() {
     DOM[`player${player}`].className = "turn-player";
 
     setTimeout(() => {
-      console.log(`Player ${player} jogou (bot)`);
-
       const playersPieces = {
         2: player2Pieces,
         3: player3Pieces,
         4: player4Pieces,
       };
       const piecesDoJogador = playersPieces[player];
+      const playablePieces = piecesDoJogador.filter(partMatchesCurrent);
+      const doublePiece = playablePieces.find((piece) => piece.type === "dupla");
+      const chosenPiece = doublePiece || playablePieces[0];
 
-      const chosenPiece = piecesDoJogador.find(partMatchesCurrent);
       if (chosenPiece) {
+        consecutivePasses = 0;
         currentPart = chosenPiece;
         const side = getPlacementSide(chosenPiece);
         const updatedPieces = piecesDoJogador.filter(
@@ -366,8 +368,6 @@ function Game() {
         DOM[`player${player}`].className = "";
         round = player === 4 ? 1 : player + 1;
         whoplayed();
-
-        console.log(`Player ${player} jogou a peça:`, currentPart, updatedPieces);
       } else {
         pass(player);
       }
@@ -378,10 +378,53 @@ function Game() {
     DOM[`player${player}`].className = "pass";
 
     setTimeout(() => {
+      consecutivePasses += 1;
       DOM[`player${player}`].className = "";
       round = player === 4 ? 1 : player + 1;
       whoplayed();
     }, 3000);
+  }
+
+  function showEndMessage(message) {
+    const overlay = document.createElement("div");
+    overlay.className = "side-choice";
+    overlay.style.position = "fixed";
+    overlay.style.left = "50%";
+    overlay.style.top = "50%";
+    overlay.style.transform = "translate(-50%, -50%)";
+    overlay.style.background = "rgba(10, 14, 32, 0.96)";
+    overlay.style.border = "2px solid rgb(0, 112, 255)";
+    overlay.style.borderRadius = "16px";
+    overlay.style.padding = "18px";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.alignItems = "center";
+    overlay.style.gap = "12px";
+    overlay.style.minWidth = "240px";
+    overlay.style.zIndex = "1000";
+
+    const title = document.createElement("div");
+    title.className = "side-choice-title";
+    title.textContent = message;
+    title.style.textAlign = "center";
+    title.style.color = "#fff";
+    overlay.appendChild(title);
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Jogar novamente";
+    button.style.width = "100%";
+    button.style.background = "rgb(0, 112, 255)";
+    button.style.color = "#fff";
+    button.style.border = "none";
+    button.style.borderRadius = "10px";
+    button.style.padding = "10px 12px";
+    button.style.cursor = "pointer";
+    button.style.fontWeight = "700";
+    button.addEventListener("click", () => window.location.reload());
+    overlay.appendChild(button);
+
+    document.body.appendChild(overlay);
   }
 
   function whoplayed() {
@@ -393,7 +436,12 @@ function Game() {
     ].findIndex((p) => p.length === 0);
 
     if (vencedor !== -1) {
-      window.alert(`Player ${vencedor + 1} venceu!`);
+      showEndMessage(`Player ${vencedor + 1} venceu!`);
+      return;
+    }
+
+    if (consecutivePasses >= 4) {
+      showEndMessage("sem jogas possivéis, empate");
       return;
     }
 
