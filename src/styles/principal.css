@@ -28,7 +28,6 @@ body {
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto 1fr auto;
   place-items: center;
-  padding: 8px;
 }
 
 #player1 {
@@ -95,8 +94,9 @@ body {
 }
 
 .table-piece img {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
+  place-self: center;
   border-radius: 8px;
   object-fit: cover;
 }
