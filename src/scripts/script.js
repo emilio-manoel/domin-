@@ -208,7 +208,10 @@ function Game() {
     if (piece.sideA === currentEnds.left || piece.sideB === currentEnds.left) {
       sides.push("left");
     }
-    if (piece.sideA === currentEnds.right || piece.sideB === currentEnds.right) {
+    if (
+      piece.sideA === currentEnds.right ||
+      piece.sideB === currentEnds.right
+    ) {
       sides.push("right");
     }
     return sides;
@@ -248,8 +251,11 @@ function Game() {
     choices.forEach((side) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.textContent = side === "left" ? "Jogar à esquerda" : "Jogar à direita";
-      button.addEventListener("click", () => playPlayer1Piece(piece, side, span));
+      button.textContent =
+        side === "left" ? "Jogar à esquerda" : "Jogar à direita";
+      button.addEventListener("click", () =>
+        playPlayer1Piece(piece, side, span),
+      );
       sideChoiceElement.appendChild(button);
     });
 
@@ -308,7 +314,18 @@ function Game() {
           (part) => !(part.sideA === 1 && part.sideB === 1),
         ),
       );
-      placePieceOnTable(currentPart, playerWithStartPiece, "right", currentEnds);
+      placePieceOnTable(
+        currentPart,
+        playerWithStartPiece,
+        "right",
+        currentEnds,
+      );
+
+      const startSpanToRemove = document.querySelector(
+        `.player${playerWithStartPiece}-span`,
+      );
+      if (startSpanToRemove) startSpanToRemove.remove();
+      DOM[`player${playerWithStartPiece}`].className = "";
 
       if (playerWithStartPiece === 2) round = 3;
       else if (playerWithStartPiece === 3) round = 4;
@@ -362,7 +379,9 @@ function Game() {
       };
       const piecesDoJogador = playersPieces[player];
       const playablePieces = piecesDoJogador.filter(partMatchesCurrent);
-      const doublePiece = playablePieces.find((piece) => piece.type === "dupla");
+      const doublePiece = playablePieces.find(
+        (piece) => piece.type === "dupla",
+      );
       const chosenPiece = doublePiece || playablePieces[0];
 
       if (chosenPiece) {
@@ -490,4 +509,3 @@ function execute() {
 }
 
 window.addEventListener("DOMContentLoaded", execute);
-
