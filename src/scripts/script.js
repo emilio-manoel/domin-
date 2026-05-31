@@ -31,6 +31,7 @@ function createParts() {
     }
   }
   randomPieces();
+  console.log(partsPlayer);
 }
 
 function randomPieces() {
@@ -85,6 +86,15 @@ function showsPiecesPlayer1() {
   }
 }
 
+function placePieceOnTable(piece, player) {
+  if (!piece) return;
+  const pieceElement = document.createElement("div");
+  pieceElement.className = "table-piece";
+  pieceElement.textContent = `${piece.sideA}|${piece.sideB}`;
+  if (player) pieceElement.dataset.player = player;
+  DOM.table.appendChild(pieceElement);
+}
+
 function Game() {
   let round = 0;
   let player1Ready = false;
@@ -92,41 +102,75 @@ function Game() {
   let startPlayer1 = null;
 
   function startGame() {
-    const position = Number(
-      partsPlayer.findIndex((part) => part.sideA === 1 && part.sideB === 1),
+    const startPiece = { sideA: 1, sideB: 1 };
+
+    const playerWithStartPiece = [1, 2, 3, 4].find((player) =>
+      getPlayerPieces(player).some(
+        (part) => part.sideA === startPiece.sideA && part.sideB === startPiece.sideB,
+      ),
     );
-    if (position >= 0 && position <= 6) {
+
+    if (playerWithStartPiece === 1) {
       startPlayer1 = true;
-
       round = 1;
-    } else if (position >= 7 && position <= 13) {
-      currentPart = player2Pieces.find(
+
+
+    } else if (playerWithStartPiece === 2) {
+      startPlayer1 = false;
+      currentPart = getPlayerPieces(2).find(
         (part) => part.sideA === 1 && part.sideB === 1,
       );
-      player2Pieces = player2Pieces.filter(
-        (part) => !(part.sideA === 1 && part.sideB === 1),
+      setPlayerPieces(
+        2,
+        getPlayerPieces(2).filter(
+          (part) => !(part.sideA === 1 && part.sideB === 1),
+        ),
       );
+      placePieceOnTable(currentPart, 2);
+      const spanToRemove = document.querySelector(`.player2-span`);
+      spanToRemove.remove();
+      pass(2);
 
-      round = 2;
-    } else if (position >= 14 && position <= 20) {
-      currentPart = player3Pieces.find(
+
+    } else if (playerWithStartPiece === 3) {
+      startPlayer1 = false;
+      currentPart = getPlayerPieces(3).find(
         (part) => part.sideA === 1 && part.sideB === 1,
       );
-      player3Pieces = player3Pieces.filter(
-        (part) => !(part.sideA === 1 && part.sideB === 1),
+      setPlayerPieces(
+        3,
+        getPlayerPieces(3).filter(
+          (part) => !(part.sideA === 1 && part.sideB === 1),
+        ),
       );
+      placePieceOnTable(currentPart, 3);
+      const spanToRemove = document.querySelector(`.player3-span`);
+      spanToRemove.remove();
+      pass(3);
 
-      round = 3;
-    } else if (position >= 21 && position <= 27) {
-      currentPart = player4Pieces.find(
+
+    } else if (playerWithStartPiece === 4) {
+      startPlayer1 = false;
+      currentPart = getPlayerPieces(4).find(
         (part) => part.sideA === 1 && part.sideB === 1,
       );
-      player4Pieces = player4Pieces.filter(
-        (part) => !(part.sideA === 1 && part.sideB === 1),
+      setPlayerPieces(
+        4,
+        getPlayerPieces(4).filter(
+          (part) => !(part.sideA === 1 && part.sideB === 1),
+        ),
       );
-
-      round = 4;
+      placePieceOnTable(currentPart, 4);
+      const spanToRemove = document.querySelector(`.player4-span`);
+      spanToRemove.remove();
+      pass(4);
     }
+
+    if (!currentPart && !startPlayer1) {
+      console.error("Peça inicial 1/1 não encontrada em nenhum jogador.");
+      return;
+    }
+
     whoplayed();
   }
 
@@ -168,6 +212,7 @@ function Game() {
             player1Pieces = player1Pieces.filter((p) => p !== part);
             console.log(player1Pieces);
 
+            placePieceOnTable(currentPart, 1);
             DOM.player1.className = "";
             startPlayer1 = false;
             round = 2;
@@ -208,6 +253,7 @@ function Game() {
         );
         setPlayerPieces(player, updatedPieces);
 
+        placePieceOnTable(currentPart, player);
         const spanToRemove = document.querySelector(`.player${player}-span`);
         if (spanToRemove) spanToRemove.remove();
         DOM[`player${player}`].className = "";
@@ -232,6 +278,7 @@ function Game() {
         );
         setPlayerPieces(player, updatedPieces);
 
+        placePieceOnTable(currentPart, player);
         const spanToRemove = document.querySelector(`.player${player}-span`);
         if (spanToRemove) spanToRemove.remove();
         DOM[`player${player}`].className = "";
@@ -292,3 +339,4 @@ function execute() {
 }
 
 window.addEventListener("DOMContentLoaded", execute);
+
