@@ -74,153 +74,201 @@ function showsPiecesPlayer1() {
     );
     if (!player1view) continue;
 
+    const piece = player1Pieces[i - 1];
+    player1view.piece = piece;
+
     const imgCreated1 = player1view.appendChild(document.createElement("img"));
     imgCreated1.className = "sideA";
-    imgCreated1.src = `src/assets/part-${player1Pieces[i - 1].sideA}.jpg`;
-    imgCreated1.alt = `Peça lado A ${player1Pieces[i - 1].sideA}`;
+    imgCreated1.src = `src/assets/part-${piece.sideA}.jpg`;
+    imgCreated1.alt = `Peça lado A ${piece.sideA}`;
 
     const imgCreated2 = player1view.appendChild(document.createElement("img"));
     imgCreated2.className = "sideB";
-    imgCreated2.src = `src/assets/part-${player1Pieces[i - 1].sideB}.jpg`;
-    imgCreated2.alt = `Peça lado B ${player1Pieces[i - 1].sideB}`;
+    imgCreated2.src = `src/assets/part-${piece.sideB}.jpg`;
+    imgCreated2.alt = `Peça lado B ${piece.sideB}`;
   }
 }
 
-function placePieceOnTable(piece, player) {
+function formatPieceText(piece, side, currentEnds) {
+  if (!piece) return "";
+  if (side === "center" || !currentEnds) {
+    return `${piece.sideA}|${piece.sideB}`;
+  }
+
+  const otherSide = (matchValue) =>
+    piece.sideA === matchValue ? piece.sideB : piece.sideA;
+
+  if (side === "left") {
+    const match = piece.sideA === currentEnds.left ? piece.sideA : piece.sideB;
+    return `${otherSide(currentEnds.left)}|${match}`;
+  }
+
+  if (side === "right") {
+    const match = piece.sideA === currentEnds.right ? piece.sideA : piece.sideB;
+    return `${match}|${otherSide(currentEnds.right)}`;
+  }
+
+  return `${piece.sideA}|${piece.sideB}`;
+}
+
+function placePieceOnTable(piece, player, side = "right", currentEnds = null) {
   if (!piece) return;
   const pieceElement = document.createElement("div");
   pieceElement.className = "table-piece";
-  pieceElement.textContent = `${piece.sideA}|${piece.sideB}`;
+  pieceElement.textContent = formatPieceText(piece, side, currentEnds);
   if (player) pieceElement.dataset.player = player;
-  DOM.table.appendChild(pieceElement);
+
+  if (side === "left") {
+    DOM.table.insertBefore(pieceElement, DOM.table.firstChild);
+  } else {
+    DOM.table.appendChild(pieceElement);
+  }
 }
 
 function Game() {
   let round = 0;
-  let player1Ready = false;
+  let currentEnds = null;
   let currentPart = null;
   let startPlayer1 = null;
 
-  function startGame() {
-    const startPiece = { sideA: 1, sideB: 1 };
+  function partMatchesCurrent(part) {
+    if (!currentEnds) return false;
+    return (
+      part.sideA === currentEnds.left ||
+      part.sideB === currentEnds.left ||
+      part.sideA === currentEnds.right ||
+      part.sideB === currentEnds.right
+    );
+  }
 
+  function updateCurrentEnds(piece, side) {
+    if (!currentEnds) return;
+    if (side === "left") {
+      currentEnds.left =
+        piece.sideA === currentEnds.left ? piece.sideB : piece.sideA;
+      return;
+    }
+    if (side === "right") {
+      currentEnds.right =
+        piece.sideA === currentEnds.right ? piece.sideB : piece.sideA;
+      return;
+    }
+  }
+
+  function getPlacementSide(piece) {
+    const matchesLeft =
+      piece.sideA === currentEnds.left || piece.sideB === currentEnds.left;
+    const matchesRight =
+      piece.sideA === currentEnds.right || piece.sideB === currentEnds.right;
+
+    if (matchesLeft && !matchesRight) return "left";
+    if (matchesRight && !matchesLeft) return "right";
+    if (matchesLeft && matchesRight) {
+      return currentEnds.left === currentEnds.right ? "right" : "left";
+    }
+    return null;
+  }
+
+  function clearPlayer1Highlights() {
+    document.querySelectorAll(".player1-span").forEach((span) => {
+      span.classList.remove("playable-piece", "start-player1");
+    });
+  }
+
+  function setupPlayer1Clicks() {
+    const spans = document.querySelectorAll(".player1-span");
+    spans.forEach((span) => {
+      if (span.dataset.player1Click === "true") return;
+      span.dataset.player1Click = "true";
+
+      span.addEventListener("click", () => {
+        if (round !== 1) return;
+        if (!span.classList.contains("playable-piece")) return;
+        const piece = span.piece;
+        if (!piece) return;
+
+        currentPart = piece;
+        const side = startPlayer1 ? "center" : getPlacementSide(piece);
+        player1Pieces = player1Pieces.filter((p) => p !== piece);
+        placePieceOnTable(currentPart, 1, side, currentEnds);
+        if (side) updateCurrentEnds(piece, side);
+        span.style.visibility = "hidden";
+        span.classList.remove("playable-piece", "start-player1");
+        startPlayer1 = false;
+        round = 2;
+        whoplayed();
+      });
+    });
+  }
+
+  function startGame() {
     const playerWithStartPiece = [1, 2, 3, 4].find((player) =>
       getPlayerPieces(player).some(
-        (part) => part.sideA === startPiece.sideA && part.sideB === startPiece.sideB,
+        (part) => part.sideA === 1 && part.sideB === 1,
       ),
     );
 
-    if (playerWithStartPiece === 1) {
-      startPlayer1 = true;
-      round = 1;
-
-
-    } else if (playerWithStartPiece === 2) {
-      startPlayer1 = false;
-      currentPart = getPlayerPieces(2).find(
-        (part) => part.sideA === 1 && part.sideB === 1,
-      );
-      setPlayerPieces(
-        2,
-        getPlayerPieces(2).filter(
-          (part) => !(part.sideA === 1 && part.sideB === 1),
-        ),
-      );
-      placePieceOnTable(currentPart, 2);
-      const spanToRemove = document.querySelector(`.player2-span`);
-      spanToRemove.remove();
-      pass(2);
-
-
-    } else if (playerWithStartPiece === 3) {
-      startPlayer1 = false;
-      currentPart = getPlayerPieces(3).find(
-        (part) => part.sideA === 1 && part.sideB === 1,
-      );
-      setPlayerPieces(
-        3,
-        getPlayerPieces(3).filter(
-          (part) => !(part.sideA === 1 && part.sideB === 1),
-        ),
-      );
-      placePieceOnTable(currentPart, 3);
-      const spanToRemove = document.querySelector(`.player3-span`);
-      spanToRemove.remove();
-      pass(3);
-
-
-    } else if (playerWithStartPiece === 4) {
-      startPlayer1 = false;
-      currentPart = getPlayerPieces(4).find(
-        (part) => part.sideA === 1 && part.sideB === 1,
-      );
-      setPlayerPieces(
-        4,
-        getPlayerPieces(4).filter(
-          (part) => !(part.sideA === 1 && part.sideB === 1),
-        ),
-      );
-      placePieceOnTable(currentPart, 4);
-      const spanToRemove = document.querySelector(`.player4-span`);
-      spanToRemove.remove();
-      pass(4);
-    }
-
-    if (!currentPart && !startPlayer1) {
+    if (!playerWithStartPiece) {
       console.error("Peça inicial 1/1 não encontrada em nenhum jogador.");
       return;
     }
 
+    if (playerWithStartPiece === 1) {
+      startPlayer1 = true;
+      currentEnds = { left: 1, right: 1 };
+      currentPart = { sideA: 1, sideB: 1 };
+      round = 1;
+    } else {
+      startPlayer1 = false;
+      currentEnds = { left: 1, right: 1 };
+      currentPart = getPlayerPieces(playerWithStartPiece).find(
+        (part) => part.sideA === 1 && part.sideB === 1,
+      );
+      setPlayerPieces(
+        playerWithStartPiece,
+        getPlayerPieces(playerWithStartPiece).filter(
+          (part) => !(part.sideA === 1 && part.sideB === 1),
+        ),
+      );
+      placePieceOnTable(currentPart, playerWithStartPiece, "right", currentEnds);
+
+      if (playerWithStartPiece === 2) round = 3;
+      else if (playerWithStartPiece === 3) round = 4;
+      else round = 1;
+    }
+
+    setupPlayer1Clicks();
     whoplayed();
   }
 
   function turnPlayer1() {
-    if (player1Ready) return;
-    player1Ready = true;
-
+    setupPlayer1Clicks();
     const spans = document.querySelectorAll(".player1-span");
-
-    if (startPlayer1) {
-      spans.forEach((span) => {
-        const sideA = Number(span.querySelector(".sideA").src.slice(-5, -4));
-        const sideB = Number(span.querySelector(".sideB").src.slice(-5, -4));
-        if (sideA === 1 && sideB === 1) {
-          span.classList.add("start-player1");
-        }
-      });
-    }
+    let hasPlayable = false;
 
     spans.forEach((span) => {
-      span.addEventListener("click", () => {
-        if (round !== 1) return;
+      const piece = span.piece;
+      if (!piece || span.style.visibility === "hidden") {
+        span.classList.remove("playable-piece", "start-player1");
+        return;
+      }
 
-        if (startPlayer1 && !span.classList.contains("start-player1")) return;
+      const canPlay = startPlayer1
+        ? piece.sideA === 1 && piece.sideB === 1
+        : partMatchesCurrent(piece);
 
-        span.style.visibility = "hidden";
-        span.classList.remove("start-player1");
-
-        player1Pieces.forEach((part) => {
-          if (
-            part.sideA ===
-              Number(span.querySelector(".sideA").src.slice(-5, -4)) &&
-            part.sideB ===
-              Number(span.querySelector(".sideB").src.slice(-5, -4))
-          ) {
-            currentPart = player1Pieces.find((p) => p === part);
-            console.log(currentPart);
-
-            player1Pieces = player1Pieces.filter((p) => p !== part);
-            console.log(player1Pieces);
-
-            placePieceOnTable(currentPart, 1);
-            DOM.player1.className = "";
-            startPlayer1 = false;
-            round = 2;
-            whoplayed();
-          }
-        });
-      });
+      if (canPlay) {
+        span.classList.add("playable-piece");
+        hasPlayable = true;
+        if (startPlayer1) span.classList.add("start-player1");
+      } else {
+        span.classList.remove("playable-piece", "start-player1");
+      }
     });
+
+    if (!hasPlayable) {
+      pass(1);
+    }
   }
 
   function restPlayersTurn(player) {
@@ -236,49 +284,17 @@ function Game() {
       };
       const piecesDoJogador = playersPieces[player];
 
-      if (
-        piecesDoJogador.some(
-          (part) =>
-            part.sideA === currentPart.sideA ||
-            part.sideA === currentPart.sideB,
-        )
-      ) {
-        currentPart = piecesDoJogador.find(
-          (part) =>
-            part.sideA === currentPart.sideA ||
-            part.sideA === currentPart.sideB,
-        );
+      const chosenPiece = piecesDoJogador.find(partMatchesCurrent);
+      if (chosenPiece) {
+        currentPart = chosenPiece;
+        const side = getPlacementSide(chosenPiece);
         const updatedPieces = piecesDoJogador.filter(
-          (part) => part !== currentPart,
+          (part) => part !== chosenPiece,
         );
         setPlayerPieces(player, updatedPieces);
 
-        placePieceOnTable(currentPart, player);
-        const spanToRemove = document.querySelector(`.player${player}-span`);
-        if (spanToRemove) spanToRemove.remove();
-        DOM[`player${player}`].className = "";
-        round = player === 4 ? 1 : player + 1;
-        whoplayed();
-
-        console.log(`Player ${player} jogou a peça:`, currentPart, updatedPieces);
-      } else if (
-        piecesDoJogador.some(
-          (part) =>
-            part.sideB === currentPart.sideA ||
-            part.sideB === currentPart.sideB,
-        )
-      ) {
-        currentPart = piecesDoJogador.find(
-          (part) =>
-            part.sideB === currentPart.sideA ||
-            part.sideB === currentPart.sideB,
-        );
-        const updatedPieces = piecesDoJogador.filter(
-          (part) => part !== currentPart,
-        );
-        setPlayerPieces(player, updatedPieces);
-
-        placePieceOnTable(currentPart, player);
+        placePieceOnTable(currentPart, player, side, currentEnds);
+        if (side) updateCurrentEnds(chosenPiece, side);
         const spanToRemove = document.querySelector(`.player${player}-span`);
         if (spanToRemove) spanToRemove.remove();
         DOM[`player${player}`].className = "";
@@ -313,6 +329,10 @@ function Game() {
     if (vencedor !== -1) {
       window.alert(`Player ${vencedor + 1} venceu!`);
       return;
+    }
+
+    if (round !== 1) {
+      clearPlayer1Highlights();
     }
 
     if (round === 1) {

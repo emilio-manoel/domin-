@@ -136,6 +136,12 @@ body {
   border-radius: 18px;
 }
 
+.playable-piece {
+  box-sizing: content-box;
+  border: 4px solid rgb(0, 112, 255);
+  border-radius: 14px;
+}
+
 .pass {
   background-color: red;
   border: red solid 10px;
