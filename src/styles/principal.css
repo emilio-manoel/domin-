@@ -97,13 +97,18 @@ body {
   border-radius: 8px;
 }
 
-.turn-player{
-  background-color:rgb(15, 172, 15);
-  border:rgb(15, 172, 15) solid 10px;
+.turn-player {
+  background-color: rgb(15, 172, 15);
+  border: rgb(15, 172, 15) solid 10px;
 }
 
-.start-player1{
+.start-player1 {
   box-sizing: content-box;
   border: rgb(37, 26, 188) solid 10px;
   border-radius: 18px;
+}
+
+.pass {
+  background-color: red;
+  border: red solid 10px;
 }
