@@ -89,34 +89,38 @@ function showsPiecesPlayer1() {
   }
 }
 
-function formatPieceText(piece, side, currentEnds) {
-  if (!piece) return "";
-  if (side === "center" || !currentEnds) {
-    return `${piece.sideA}|${piece.sideB}`;
-  }
-
-  const otherSide = (matchValue) =>
-    piece.sideA === matchValue ? piece.sideB : piece.sideA;
-
-  if (side === "left") {
-    const match = piece.sideA === currentEnds.left ? piece.sideA : piece.sideB;
-    return `${otherSide(currentEnds.left)}|${match}`;
-  }
-
-  if (side === "right") {
-    const match = piece.sideA === currentEnds.right ? piece.sideA : piece.sideB;
-    return `${match}|${otherSide(currentEnds.right)}`;
-  }
-
-  return `${piece.sideA}|${piece.sideB}`;
+function createTablePieceImage(value, className) {
+  const img = document.createElement("img");
+  img.className = className;
+  img.src = `src/assets/part-${value}.jpg`;
+  img.alt = `lado ${value}`;
+  return img;
 }
 
 function placePieceOnTable(piece, player, side = "right", currentEnds = null) {
   if (!piece) return;
   const pieceElement = document.createElement("div");
   pieceElement.className = "table-piece";
-  pieceElement.textContent = formatPieceText(piece, side, currentEnds);
   if (player) pieceElement.dataset.player = player;
+
+  const leftValue = (() => {
+    if (!currentEnds || side === "center") return piece.sideA;
+    if (side === "left") {
+      return piece.sideA === currentEnds.left ? piece.sideB : piece.sideA;
+    }
+    return piece.sideA === currentEnds.right ? piece.sideA : piece.sideB;
+  })();
+
+  const rightValue = (() => {
+    if (!currentEnds || side === "center") return piece.sideB;
+    if (side === "left") {
+      return piece.sideA === currentEnds.left ? piece.sideA : piece.sideB;
+    }
+    return piece.sideA === currentEnds.right ? piece.sideB : piece.sideA;
+  })();
+
+  pieceElement.appendChild(createTablePieceImage(leftValue, "sideA"));
+  pieceElement.appendChild(createTablePieceImage(rightValue, "sideB"));
 
   if (side === "left") {
     DOM.table.insertBefore(pieceElement, DOM.table.firstChild);
@@ -169,10 +173,74 @@ function Game() {
     return null;
   }
 
+  let sideChoiceElement = null;
+
   function clearPlayer1Highlights() {
     document.querySelectorAll(".player1-span").forEach((span) => {
       span.classList.remove("playable-piece", "start-player1");
     });
+  }
+
+  function clearSideChoice() {
+    if (sideChoiceElement) {
+      sideChoiceElement.remove();
+      sideChoiceElement = null;
+    }
+  }
+
+  function getPlayableSides(piece) {
+    if (startPlayer1) {
+      return piece.sideA === 1 && piece.sideB === 1 ? ["center"] : [];
+    }
+    const sides = [];
+    if (piece.sideA === currentEnds.left || piece.sideB === currentEnds.left) {
+      sides.push("left");
+    }
+    if (piece.sideA === currentEnds.right || piece.sideB === currentEnds.right) {
+      sides.push("right");
+    }
+    return sides;
+  }
+
+  function playPlayer1Piece(piece, side, span) {
+    DOM.player1.classList.remove("turn-player");
+    currentPart = piece;
+    player1Pieces = player1Pieces.filter((p) => p !== piece);
+    placePieceOnTable(currentPart, 1, side, currentEnds);
+    if (side !== "center") updateCurrentEnds(piece, side);
+    span.style.visibility = "hidden";
+    span.classList.remove("playable-piece", "start-player1");
+    startPlayer1 = false;
+    clearSideChoice();
+    round = 2;
+    whoplayed();
+  }
+
+  function showSideChoice(piece, span) {
+    clearSideChoice();
+    const choices = getPlayableSides(piece);
+    if (choices.length === 0) return;
+    if (choices.length === 1) {
+      playPlayer1Piece(piece, choices[0], span);
+      return;
+    }
+
+    sideChoiceElement = document.createElement("div");
+    sideChoiceElement.className = "side-choice";
+    const title = document.createElement("div");
+    title.className = "side-choice-title";
+    title.textContent = "Escolha o lado";
+    sideChoiceElement.appendChild(title);
+
+    choices.forEach((side) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = side === "left" ? "Jogar à esquerda" : "Jogar à direita";
+      button.addEventListener("click", () => playPlayer1Piece(piece, side, span));
+      sideChoiceElement.appendChild(button);
+    });
+
+    document.body.appendChild(sideChoiceElement);
   }
 
   function setupPlayer1Clicks() {
@@ -187,16 +255,13 @@ function Game() {
         const piece = span.piece;
         if (!piece) return;
 
-        currentPart = piece;
-        const side = startPlayer1 ? "center" : getPlacementSide(piece);
-        player1Pieces = player1Pieces.filter((p) => p !== piece);
-        placePieceOnTable(currentPart, 1, side, currentEnds);
-        if (side) updateCurrentEnds(piece, side);
-        span.style.visibility = "hidden";
-        span.classList.remove("playable-piece", "start-player1");
-        startPlayer1 = false;
-        round = 2;
-        whoplayed();
+        const sides = getPlayableSides(piece);
+        if (sides.includes("center")) {
+          playPlayer1Piece(piece, "center", span);
+          return;
+        }
+
+        showSideChoice(piece, span);
       });
     });
   }
@@ -268,6 +333,7 @@ function Game() {
 
     if (!hasPlayable) {
       pass(1);
+      return;
     }
   }
 
@@ -333,6 +399,7 @@ function Game() {
 
     if (round !== 1) {
       clearPlayer1Highlights();
+      clearSideChoice();
     }
 
     if (round === 1) {
