@@ -100,6 +100,9 @@ function placePieceOnTable(piece, player, side = "right", currentEnds = null) {
   if (!piece) return;
   const pieceElement = document.createElement("div");
   pieceElement.className = "table-piece";
+  if (piece.type === "dupla") {
+    pieceElement.classList.add("dupla-piece");
+  }
   if (player) pieceElement.dataset.player = player;
 
   const leftValue = (() => {
@@ -178,6 +181,15 @@ function Game() {
   function clearPlayer1Highlights() {
     document.querySelectorAll(".player1-span").forEach((span) => {
       span.classList.remove("playable-piece", "start-player1");
+    });
+  }
+
+  function clearPlayerTurnStates() {
+    [1, 2, 3, 4].forEach((player) => {
+      const playerElement = DOM[`player${player}`];
+      if (playerElement) {
+        playerElement.classList.remove("turn-player", "pass");
+      }
     });
   }
 
@@ -339,7 +351,8 @@ function Game() {
   }
 
   function restPlayersTurn(player) {
-    DOM[`player${player}`].className = "turn-player";
+    clearPlayerTurnStates();
+    DOM[`player${player}`].classList.add("turn-player");
 
     setTimeout(() => {
       const playersPieces = {
@@ -375,11 +388,13 @@ function Game() {
   }
 
   function pass(player) {
-    DOM[`player${player}`].className = "pass";
+    clearPlayerTurnStates();
+    const playerElement = DOM[`player${player}`];
+    playerElement.classList.add("pass");
 
     setTimeout(() => {
       consecutivePasses += 1;
-      DOM[`player${player}`].className = "";
+      playerElement.classList.remove("pass");
       round = player === 4 ? 1 : player + 1;
       whoplayed();
     }, 3000);
@@ -451,8 +466,9 @@ function Game() {
     }
 
     if (round === 1) {
+      clearPlayerTurnStates();
       turnPlayer1();
-      DOM.player1.className = "turn-player";
+      DOM.player1.classList.add("turn-player");
     } else if (round === 2) {
       restPlayersTurn(2);
     } else if (round === 3) {

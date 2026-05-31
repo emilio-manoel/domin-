@@ -101,6 +101,13 @@ body {
   object-fit: cover;
 }
 
+.table-piece.dupla-piece {
+  min-width: 45px;
+  min-height: 110px;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
 .side-choice {
   position: fixed;
   z-index: 1000;
